@@ -10,7 +10,7 @@ export const appRouter = createTRPCRouter({
       }),
     )
     .query(async (opts) => {
-      console.log(opts.ctx.clerkUserId);
+      console.log({dbUser:opts.ctx.user});
       return {
         greeting: `hello ${opts.input.text}`,
       };
