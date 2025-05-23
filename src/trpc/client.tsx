@@ -8,6 +8,8 @@ import { useState } from 'react';
 import superjson from 'superjson';
 import { makeQueryClient } from './query-client';
 import type { AppRouter } from './routers/_app';
+
+
 export const trpc = createTRPCReact<AppRouter>();
 let clientQueryClientSingleton: QueryClient;
 function getQueryClient() {
@@ -27,6 +29,8 @@ function getUrl() {
   })();
   return `${base}/api/trpc`;
 }
+
+
 export function TRPCProvider(
   props: Readonly<{
     children: React.ReactNode;
@@ -52,6 +56,12 @@ export function TRPCProvider(
       ],
     }),
   );
+
+  console.log('trpcClient:', trpcClient); 
+
+ 
+  
+
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
@@ -60,3 +70,5 @@ export function TRPCProvider(
     </trpc.Provider>
   );
 }
+
+
