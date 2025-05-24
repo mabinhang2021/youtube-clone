@@ -44,6 +44,43 @@ export const FilterCarousel = ({ value, isLoading, onSelect, data }: FilterCarou
         
         router.push(newUrl);
     };
+
+    // 渲染加载状态的占位符
+    if (isLoading) {
+        return (
+            <div className="relative w-full">
+                <Carousel opts={{align:"start",dragFree:true}} className="w-full px-12">
+                    <CarouselContent className="-ml-3">
+                        {/* ALL 按钮占位符 */}
+                        <CarouselItem className="pl-3 basis-auto">
+                            <Badge 
+                                variant="secondary"
+                                className="cursor-not-allowed rounded-lg px-3 py-1 whitespace-nowrap text-sm opacity-50"
+                            >
+                                ALL
+                            </Badge>
+                        </CarouselItem>
+                        {/* 生成5个占位符 */}
+                        {Array(5).fill(0).map((_, index) => (
+                            <CarouselItem key={`skeleton-${index}`} className="pl-3 basis-auto">
+                                <Badge 
+                                    variant="secondary"
+                                    className="cursor-not-allowed rounded-lg px-3 py-1 whitespace-nowrap text-sm opacity-50"
+                                >
+                                    <div className="w-16 h-4 bg-gray-200 animate-pulse rounded" />
+                                </Badge>
+                            </CarouselItem>
+                        ))}
+                    </CarouselContent>
+                    <CarouselPrevious className="left-0 z-20 opacity-50" disabled />
+                    <CarouselNext className="right-0 z-20 opacity-50" disabled />
+                </Carousel>
+            </div>
+        );
+    }
+
+
+
     return(
         <div className="ralative w-full">
             <Carousel opts={{align:"start",dragFree:true}} className="w-full px-12" setApi={setApi}>

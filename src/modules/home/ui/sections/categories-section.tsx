@@ -22,9 +22,11 @@ export const CategoriesSection = ({ categoryId }: CategoriesSectionProps) => {
 const CategoriesSectionContent = ({ categoryId }: CategoriesSectionProps) => {
     const { data: categories, isLoading, error } = trpc.categories.getMany.useQuery();
     
-    if (isLoading) return <p>Loading categories...</p>;
+    
     if (error) return <p>Error loading categories: {error.message}</p>;
-    if (!categories) return <p>No categories found</p>;
+    if (isLoading || !categories) {
+        return <FilterCarousel isLoading={true} data={[]} value={categoryId} />;
+    }
     
     const filterData = categories.map((category) => ({
         value: category.id,
