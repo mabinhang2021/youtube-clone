@@ -10,21 +10,21 @@ export const AuthButton = () => {
         <>
           <SignedIn>
             {/* {todo: add create and notice buttons} */}
-            <Button asChild variant="secondary" 
+            {/* <Button asChild variant="secondary" 
             className="rounded-full px-5 py-2 font-medium hover:shadow-md transition-all">
               <Link href="/create" className="flex items-center gap-2">
                 <PlusIcon className="size-4" />
                 <span>Create</span>
               </Link>
-            </Button>
+            </Button> */}
             {/* Notification Bell Button */}
-            <Button 
+            {/* <Button 
               variant="ghost" 
               size="icon"
               className="rounded-full hover:bg-gray-100 mr-2"
             >
               <BellIcon className="size-5" />
-            </Button>
+            </Button> */}
             <UserButton>
               <UserButton.MenuItems>
                 {/* {todo: add user profile menu button} */}

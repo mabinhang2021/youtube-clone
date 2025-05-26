@@ -1,38 +1,56 @@
 'use client';
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import type { QueryClient } from '@tanstack/react-query';
+import superjson from "superjson";
+import { QueryClientProvider } from '@tanstack/react-query';
 import { httpBatchLink } from '@trpc/client';
 import { createTRPCReact } from '@trpc/react-query';
-import React, { useState } from 'react';
-import superjson from 'superjson';
+import { useState } from 'react';
+import { makeQueryClient } from './query-client';
 import type { AppRouter } from './routers/_app';
 
 export const trpc = createTRPCReact<AppRouter>();
-
-function getBaseUrl() {
-  if (typeof window !== 'undefined') return '';
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
-  return 'http://localhost:3000';
+let clientQueryClientSingleton: QueryClient;
+function getQueryClient() {
+  if (typeof window === 'undefined') {
+    // Server: always make a new query client
+    return makeQueryClient();
+  }
+  // Browser: use singleton pattern to keep the same query client
+  return (clientQueryClientSingleton ??= makeQueryClient());
 }
-
-export function TRPCProvider({ children }: { children: React.ReactNode }) {
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            staleTime: 5 * 1000,
-          },
-        },
-      }),
-  );
-
+function getUrl() {
+  const base = (() => {
+    if (typeof window !== 'undefined') {
+      // 浏览器环境，使用相对路径
+      return '';
+    }
+    // 服务端环境，始终指向 localhost:3000
+    return 'http://localhost:3000';
+  })();
+  return `${base}/api/trpc`;
+}
+export function TRPCProvider(
+  props: Readonly<{
+    children: React.ReactNode;
+  }>,
+) {
+  // NOTE: Avoid useState when initializing the query client if you don't
+  //       have a suspense boundary between this and the code that may
+  //       suspend because React will throw away the client on the initial
+  //       render if it suspends and there is no boundary
+  const queryClient = getQueryClient();
   const [trpcClient] = useState(() =>
     trpc.createClient({
       links: [
         httpBatchLink({
-          url: `${getBaseUrl()}/api/trpc`,
           transformer: superjson,
+          url: getUrl(),
+          async headers() {
+            const headers = new Headers();
+            headers.set("x-trpc-source", "nextjs-react");
+            return headers;
+          }
         }),
       ],
     }),
@@ -40,7 +58,9 @@ export function TRPCProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      <QueryClientProvider client={queryClient}>
+        {props.children}
+      </QueryClientProvider>
     </trpc.Provider>
   );
 }
