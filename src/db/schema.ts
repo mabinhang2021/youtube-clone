@@ -1,5 +1,7 @@
 import { integer, pgTable, uuid,text,timestamp,uniqueIndex, pgEnum } from "drizzle-orm/pg-core";
 import {relations} from "drizzle-orm";
+import {createInsertSchema,createSelectSchema,createUpdateSchema,} from "drizzle-zod";
+import { from } from "svix/dist/openapi/rxjsStub";
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -49,6 +51,10 @@ export const videos = pgTable("videos", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 })
+
+export const videoInsertSchema = createInsertSchema(videos);
+export const videoSelectSchema = createSelectSchema(videos,); 
+export const videoUpdateSchema = createUpdateSchema(videos,);
 
 export const videoRelations = relations(videos, ({one})=>({
   user: one(users, {
