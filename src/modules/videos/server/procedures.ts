@@ -5,9 +5,66 @@ import { createTRPCRouter, protectedProcedure,} from "@/trpc/init";
 import { and,eq } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+import { UTApi } from "uploadthing/server";
 
 
 export const videosRouter = createTRPCRouter({
+    restoreThumbnail: protectedProcedure
+    .input(z.object({
+        id: z.string().uuid(),}))
+    .mutation(async ({ ctx, input }) => {
+        const {id: userId} = ctx.user;
+        const [existingVideo] = await db.select().from(videos).where(
+            and(
+                eq(videos.id, input.id),
+                eq(videos.userId, userId)
+            )
+        );
+        if (!existingVideo) {
+            throw new TRPCError({
+                code: 'NOT_FOUND',
+                message: 'Video not found or you do not have permission to restore it',
+            });
+        }
+        if (existingVideo.thumbnailKey) {
+            const utapi = new UTApi();
+            await utapi.deleteFiles(existingVideo.thumbnailKey);
+            await db
+              .update(videos)
+              .set({thumbnailUrl: null, thumbnailKey: null})
+              .where(
+                and(
+                  eq(videos.id, input.id),
+                  eq(videos.userId, userId)
+                )
+              );
+          }
+        if (!existingVideo.muxPlaybackId) {
+            throw new TRPCError({
+                code: 'BAD_REQUEST',
+                message: 'Video does not have a playback ID',
+            });
+        }
+        const tempthumbnailUrl = `https://image.mux.com/${existingVideo.muxPlaybackId}/thumbnail.jpg?width=214&height=121&time=3`;
+        const utapi = new UTApi();
+        const uploadedThumbnail =await utapi.uploadFilesFromUrl( tempthumbnailUrl);
+        if (!uploadedThumbnail.data) {
+            throw new TRPCError({
+                code: 'INTERNAL_SERVER_ERROR',
+                message: 'Failed to upload thumbnail',
+            });
+        }
+        const {url: thumbnailUrl, key: thumbnailKey} = uploadedThumbnail.data;
+
+        const [updatedVideo] = await db.update(videos).set({thumbnailUrl, thumbnailKey}).where(
+            and(
+                eq(videos.id, input.id),
+                eq(videos.userId, userId)
+            )
+        ).returning();
+        return updatedVideo; 
+    }),
+    
     remove: protectedProcedure
     .input(z.object({
         id: z.string().uuid(),}))
