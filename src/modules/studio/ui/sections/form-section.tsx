@@ -11,7 +11,7 @@ import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@
 import { ErrorBoundary } from "react-error-boundary";
 import { Select,SelectContent,SelectTrigger,SelectItem,SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { CopyCheckIcon, CopyIcon, Globe2Icon, ImagePlusIcon, LockIcon, MoreVerticalIcon, RotateCcwIcon, SparklesIcon, TrashIcon } from "lucide-react";
+import { CopyCheckIcon, CopyIcon, Globe2Icon, ImagePlusIcon, Loader2Icon, LockIcon, MoreVerticalIcon, RotateCcwIcon, SparklesIcon, TrashIcon } from "lucide-react";
 import { DropdownMenu,DropdownMenuContent,DropdownMenuItem,DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import { z } from "zod";
 
@@ -23,6 +23,7 @@ import { snakeCaseToTitle } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { THUMBNAIL_FALLBACK } from "@/modules/videos/constants";
 import { ThumbnailUploadModal } from "../components/thumbnail-upload-modal";
+import { Description } from "@radix-ui/react-dialog";
 interface FormSectionProps {
     videoId: string;
 }
@@ -71,6 +72,32 @@ const FormSectionSkeleton = () => {
         },
         onError:() =>{
             toast.error("Failed to remove video")
+        }
+    });
+    const generateTitle = trpc.videos.generateTitle.useMutation({
+        onSuccess: () => {
+            toast.success("background job started to generate title",{description:"This may take a few minutes"});
+        },
+        onError:() =>{
+            toast.error("Failed to generate title for video")
+        }
+    });
+
+    const generateDescription = trpc.videos.generateDescription.useMutation({
+        onSuccess: () => {
+            toast.success("background job started to generate description",{description:"This may take a few minutes"});
+        },
+        onError:() =>{
+            toast.error("Failed to generate description for video")
+        }
+    });
+
+    const generateThumbnail = trpc.videos.generateThumbnail.useMutation({
+        onSuccess: () => {
+            toast.success("background job started to generate thumbnail",{description:"This may take a few minutes"});
+        },
+        onError:() =>{
+            toast.error("Failed to restore thumbnail for video")
         }
     });
 
@@ -146,7 +173,15 @@ const FormSectionSkeleton = () => {
                         name="title"
                         render={({field}) => (
                             <FormItem>
-                                <FormLabel>Title</FormLabel>
+                                <FormLabel>
+                                    <div className="flex items-center gap-x-2">
+                                        Title
+                                        <Button size="icon" variant="outline" type="button" className="rounded-full size-6 [&_svg]:size-3"
+                                            onClick={() => generateTitle.mutate({id: video.id})} disabled={generateTitle.isPending || !video.muxTrackId}>
+                                            {generateTitle.isPending ? <Loader2Icon className="animate-spin" /> : <SparklesIcon />}
+                                        </Button>
+                                    </div>
+                                </FormLabel>
                                 <FormControl>
                                     <Input 
                                         {...field}
@@ -164,7 +199,15 @@ const FormSectionSkeleton = () => {
                         name="description"
                         render={({field}) => (
                             <FormItem>
-                                <FormLabel>Description</FormLabel>
+                                <FormLabel>
+                                <div className="flex items-center gap-x-2">
+                                        Description
+                                        <Button size="icon" variant="outline" type="button" className="rounded-full size-6 [&_svg]:size-3"
+                                            onClick={() => generateDescription.mutate({id: video.id})} disabled={generateDescription.isPending || !video.muxTrackId}>
+                                            {generateDescription.isPending ? <Loader2Icon className="animate-spin" /> : <SparklesIcon />}
+                                        </Button>
+                                    </div>
+                                </FormLabel>
                                 <FormControl>
                                     <Textarea 
                                         {...field}
@@ -205,7 +248,7 @@ const FormSectionSkeleton = () => {
                                                 <DropdownMenuItem onClick={() => setThumbnailModalOpen(true)}>
                                                     <ImagePlusIcon className="size-4 mr-1" />Change
                                                 </DropdownMenuItem>
-                                                <DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => generateThumbnail.mutate({id: video.id})}>
                                                     <SparklesIcon className="size-4 mr-1" />AI Generated
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem onClick={() => restoreThumbnail.mutate({id: video.id})}>
