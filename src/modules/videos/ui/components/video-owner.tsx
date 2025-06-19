@@ -1,9 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { UserAvatar } from "@/components/user-avatar";
+import { useSubscription } from "@/modules/subscriptions/hooks/use-subscription";
 import { SubscriptionButton } from "@/modules/subscriptions/ui/components/subscription-button";
 import { UserInfo } from "@/modules/users/ui/components/user-info";
 import { VideoGetOneOutput } from "@/modules/videos/types";
 import { useAuth } from "@clerk/nextjs";
+import { is } from "drizzle-orm";
 import Link from "next/link";
 
 interface VideoOwnerProps {
@@ -12,7 +14,13 @@ interface VideoOwnerProps {
 }
 
 export const VideoOwner = ({ user, videoId }: VideoOwnerProps) => {
-    const {userId:clerkUserId} = useAuth();
+    const {userId:clerkUserId, isLoaded} = useAuth();
+
+    const {isPending,onClick} = useSubscription({
+        userId: user.id,
+        isSubscribed: user.viewerSubscribed,
+        fromVideoId: videoId,
+    });
     return (
         <div className="flex items-center sm:items-start justify-between sm:justify-start gap-3 min-w-0">
             <Link href={`/users/${user.id}`} >
@@ -21,8 +29,8 @@ export const VideoOwner = ({ user, videoId }: VideoOwnerProps) => {
                     <div className="flex flex-col min-w-0 gap-1">
                         <UserInfo size="lg" name={user.name}/>
                         <span className="text-sm text-muted-foreground line-clamp-1">
-                            {0} subscribers
-                            {/* todo: fill the right number*/ }
+                            {user.subscriberCount} subscribers
+                            
                         </span>
                     </div>
                 </div>
@@ -33,7 +41,7 @@ export const VideoOwner = ({ user, videoId }: VideoOwnerProps) => {
                     <Link href={`/videos/${videoId}/edit`}>Edit Video</Link>
                 </Button>
             ):(
-                <SubscriptionButton  disabled={false} isSubscribed={false} onClick={()=>{}} className="flex-none"/>
+                <SubscriptionButton  disabled={isPending || !isLoaded} isSubscribed={user.viewerSubscribed} onClick={onClick} className="flex-none"/>
             )}
         </div>
     )

@@ -1,22 +1,70 @@
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
+import { Video } from "@mux/mux-node/resources/index.mjs"
 import { Thumb } from "@radix-ui/react-scroll-area"
 import { ThumbsDownIcon, ThumbsUpIcon } from "lucide-react"
-//todo: replace with actual logic to determine viewer's reaction
+import { VideoGetOneOutput } from "../../types"
+import { useClerk } from "@clerk/nextjs"
+import { trpc } from "@/trpc/client"
+import { toast } from "sonner"
+import { util } from "zod"
+//todo: replace with actual logic to determine viewer's 
 
-export const VideoReactions = () => {
-    const viewerReactions :"like" | "dislike" = "like"; // This should be replaced with actual logic to determine the viewer's reaction
+interface VideoReactionsProps {
+    videoId: string;
+    likes: number;
+    dislikes: number;
+    viewerReaction: VideoGetOneOutput["viewerReaction"];
+}
+
+
+
+export const VideoReactions = ({videoId, likes, dislikes, viewerReaction}: VideoReactionsProps) => {
+
+    const clerk = useClerk();
+    const utils = trpc.useUtils();
+
+    const like = trpc.videoReactions.like.useMutation({
+        onSuccess:()=>{
+            utils.videos.getOne.invalidate({ id: videoId });
+            toast.success("Video liked successfully")
+            //todo: invadidate the video reactions cache
+        },
+        onError: (error) => {
+            toast.error("Error liking video")
+            if(error.data?.code === "UNAUTHORIZED") {
+                clerk.openSignIn();
+            }
+        }
+    })
+    const dislike = trpc.videoReactions.dislike.useMutation({
+        onSuccess:()=>{
+            utils.videos.getOne.invalidate({ id: videoId });
+            toast.success("Video disliked successfully")
+            //todo: invadidate the video reactions cache
+        },
+        onError: (error) => {
+            toast.error("Error liking video")
+            if(error.data?.code === "UNAUTHORIZED") {
+                clerk.openSignIn();
+            }
+        }
+    })
+   
     return(
         <div className="flex items-center flex-none">
-            <Button variant="secondary" className="rounded-l-full rounded-r-none gap-2 pr-4">
-                <ThumbsUpIcon className={cn("size-5",viewerReactions === "like" && "fill-black")}/>
-                {1}
+            <Button onClick={() => like.mutate({ videoId })} disabled={like.isPending ||dislike.isPending}
+                variant="secondary" className="rounded-l-full rounded-r-none gap-2 pr-4">
+                <ThumbsUpIcon className={cn("size-5",viewerReaction === "like" && "fill-black")}/>
+                {likes}
             </Button>
             <Separator orientation="vertical" className="h-7"/>
-            <Button variant="secondary" className="rounded-l-none rounded-r-full gap-2 pr-4">
-                <ThumbsDownIcon className={cn("size-5",viewerReactions !== "like" && "fill-black")}/>
-                {1}
+            <Button
+                onClick={() => dislike.mutate({ videoId })} disabled={like.isPending ||dislike.isPending} 
+                variant="secondary" className="rounded-l-none rounded-r-full gap-2 pr-4">
+                <ThumbsDownIcon className={cn("size-5",viewerReaction === "dislike" && "fill-black")}/>
+                {dislikes}
             </Button>
 
         </div>

@@ -111,8 +111,8 @@ const VideosSectionSuspense = () => {
                                     
                                     <TableCell>
                                         <div className="flex items-center">
-                                            {video.visivility==='private' ?(<LockIcon className="size-4 mr-2" />   ):(<Globe2Icon className="size-4 mr-2"/>  )}
-                                            {snakeCaseToTitle(video.visivility)}
+                                            {video.visibility==='private' ?(<LockIcon className="size-4 mr-2" />   ):(<Globe2Icon className="size-4 mr-2"/>  )}
+                                            {snakeCaseToTitle(video.visibility)}
                                         </div>
                                     </TableCell>
                                     <TableCell className="flex items-center">{snakeCaseToTitle(video.muxStatus||"error")}</TableCell>

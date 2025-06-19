@@ -3,10 +3,10 @@
 import { trpc } from "@/trpc/client";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import { VideoPlayer } from "../components/video-player";
+import { VideoPlayer, VideoPlayerSkeleton } from "../components/video-player";
 import { cn } from "@/lib/utils";
 import { VideoBanner } from "../components/video-banner";
-import { VideoTopRow } from "../components/video-toprow";
+import { VideoTopRow, VideoTopRowSkeleton } from "../components/video-toprow";
 import { useAuth } from "@clerk/nextjs";
 
 
@@ -16,7 +16,7 @@ interface VideoSectionProps {
 
 export const VideoSection = ({ videoId }: VideoSectionProps) => {
     return(
-        <Suspense fallback={<p>Loading...</p>} >
+        <Suspense fallback={<VideoSectionSkeleton/>} >
             <ErrorBoundary fallback={<p>Something went wrong while loading the video section.</p>}>
                 <VideoSectionSuspense videoId={videoId} />
             </ErrorBoundary>
@@ -24,13 +24,23 @@ export const VideoSection = ({ videoId }: VideoSectionProps) => {
     )
 }
 
+const VideoSectionSkeleton = () => {
+    return(
+        <>
+            <VideoPlayerSkeleton/>
+            <VideoTopRowSkeleton/>
+        </>
+    )
+
+}
+
 const VideoSectionSuspense = ({ videoId }: VideoSectionProps) => {
     const {isSignedIn} = useAuth();
     const utils = trpc.useUtils();
     const [video] = trpc.videos.getOne.useSuspenseQuery({ id: videoId });
     const createView = trpc.videoViews.create.useMutation({
-        onSuccess: (data) => {
-            utils.videos.getOne.setData({ id: videoId })
+        onSuccess: () => {
+            utils.videos.getOne.invalidate({ id: videoId });
         }
     });
     const handlePlay = () => {
