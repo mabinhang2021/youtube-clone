@@ -128,6 +128,19 @@ export const FormSectionSkeleton = () => {
             toast.error("Failed to remove video")
         }
     });
+
+    const revalidate = trpc.videos.revalidate.useMutation({
+        onSuccess: () => {
+            utils.studio.getMany.invalidate()
+            utils.studio.getOne.invalidate({id:videoId})
+            toast.success("revalidate video")
+            router.push("/studio");
+        },
+        onError:() =>{
+            toast.error("Failed to revalidate video")
+        }
+    });
+
     const generateTitle = trpc.videos.generateTitle.useMutation({
         onSuccess: () => {
             toast.success("background job started to generate title",{description:"This may take a few minutes"});
@@ -210,6 +223,10 @@ export const FormSectionSkeleton = () => {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={()=> revalidate.mutate({id: video.id})}>
+                                <RotateCcwIcon  className="size-4 mr-2"/>
+                                Revalidate
+                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={()=> remove.mutate({id: video.id})}>
                                 <TrashIcon  className="size-4 mr-2"/>
                                 Delete
