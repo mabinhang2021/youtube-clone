@@ -8,6 +8,7 @@ import { createTRPCReact } from '@trpc/react-query';
 import { useState } from 'react';
 import { makeQueryClient } from './query-client';
 import type { AppRouter } from './routers/_app';
+import { APP_URL } from '@/constants';
 
 export const trpc = createTRPCReact<AppRouter>();
 let clientQueryClientSingleton: QueryClient;
@@ -25,8 +26,8 @@ function getUrl() {
       // 浏览器环境，使用相对路径
       return '';
     }
-    // 服务端环境，始终指向 localhost:3000
-    return 'http://localhost:3000';
+   
+    return APP_URL;
   })();
   return `${base}/api/trpc`;
 }

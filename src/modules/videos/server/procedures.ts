@@ -144,6 +144,9 @@ export const videosRouter = createTRPCRouter({
 
         const playbackId = asset.playback_ids?.[0].id;
         const duration = asset.duration ? Math.round(asset.duration *1000) : 0;
+
+        //TODO: FIND A WAY TO RECALIDATE TRACKID AND TRACKSTATUS
+        
         const [updatedVideo] = await db.update(videos).set({
             muxStatus: asset.status,
             muxPlaybackId:playbackId,

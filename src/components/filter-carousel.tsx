@@ -1,112 +1,119 @@
-"use client"
+"use client";
 
-import { Carousel,CarouselApi,CarouselContent,CarouselItem,CarouselNext,CarouselPrevious } from "./ui/carousel";
-import { Badge } from "./ui/badge";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import {
+  Carousel,
+  CarouselApi,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import { Skeleton } from "@/components/ui/skeleton";
+
 interface FilterCarouselProps {
-    value?: string|null;
-    isLoading?: boolean;
-    onSelect?: (value: string|null) => void;
-    data:{
-        value: string;
-        label: string;
-    }[];
-
+  value?: string | null;
+  isLoading?: boolean;
+  onSelect: (value: string | null) => void;
+  data: {
+    value: string;
+    label: string;
+  }[];
 }
 
-export const FilterCarousel = ({ value, isLoading, onSelect, data }: FilterCarouselProps) => {
-    const [api, setApi] = useState<CarouselApi>();
-    const router = useRouter();
-    const searchParams = useSearchParams();
-    
-    // 处理类别选择
-    const handleSelect = (selectedValue: string | null) => {
-        // 调用外部 onSelect 回调（如果提供）
-        onSelect?.(selectedValue);
-        
-        // 更新 URL
-        const params = new URLSearchParams(searchParams.toString());
-        
-        if (selectedValue === null) {
-            // 如果选择"ALL"，则删除categoryId参数
-            params.delete("categoryId");
-        } else {
-            // 否则设置categoryId
-            params.set("categoryId", selectedValue);
-        }
-        
-        // 生成新URL并导航
-        const newUrl = params.toString() 
-            ? `/?${params.toString()}` 
-            : "/";
-        
-        router.push(newUrl);
-    };
+export const FilterCarousel = ({
+  value,
+  onSelect,
+  data,
+  isLoading,
+}: FilterCarouselProps) => {
+  const [api, setApi] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
+  const [count, setCount] = useState(0);
 
-    // 渲染加载状态的占位符
-    if (isLoading) {
-        return (
-            <div className="relative w-full">
-                <Carousel opts={{align:"start",dragFree:true}} className="w-full px-12">
-                    <CarouselContent className="-ml-3">
-                        {/* ALL 按钮占位符 */}
-                        <CarouselItem className="pl-3 basis-auto">
-                            <Badge 
-                                variant="secondary"
-                                className="cursor-not-allowed rounded-lg px-3 py-1 whitespace-nowrap text-sm opacity-50"
-                            >
-                                ALL
-                            </Badge>
-                        </CarouselItem>
-                        {/* 生成5个占位符 */}
-                        {Array(5).fill(0).map((_, index) => (
-                            <CarouselItem key={`skeleton-${index}`} className="pl-3 basis-auto">
-                                <Badge 
-                                    variant="secondary"
-                                    className="cursor-not-allowed rounded-lg px-3 py-1 whitespace-nowrap text-sm opacity-50"
-                                >
-                                    <div className="w-16 h-4 bg-gray-200 animate-pulse rounded" />
-                                </Badge>
-                            </CarouselItem>
-                        ))}
-                    </CarouselContent>
-                    <CarouselPrevious className="left-0 z-20 opacity-50" disabled />
-                    <CarouselNext className="right-0 z-20 opacity-50" disabled />
-                </Carousel>
-            </div>
-        );
+  useEffect(() => {
+    if (!api) {
+      return;
     }
 
+    setCount(api.scrollSnapList().length);
+    setCurrent(api.selectedScrollSnap() + 1);
 
+    api.on("select", () => {
+      setCurrent(api.selectedScrollSnap() + 1);
+    });
+  }, [api]);
+  
+  return (
+    <div className="relative w-full">
+      {/* Left fade */}
+      <div
+        className={cn(
+          "absolute left-12 top-0 bottom-0 w-12 z-10 bg-gradient-to-r from-white to-transparent pointer-events-none",
+          current === 1 && "hidden"
+        )}
+      />
 
-    return(
-        <div className="ralative w-full">
-            <Carousel opts={{align:"start",dragFree:true}} className="w-full px-12" setApi={setApi}>
-                <CarouselContent className="-ml-3">
-                    <CarouselItem className="pl-3 basis-auto">
-                        <Badge variant={value === null ? "default" : "secondary"} 
-                        className="cursor-pointer rounded-lg px-3 py-1 whitespace-nowrap text-sm" 
-                        onClick={() => handleSelect(null)}>
-                            ALL
-                        </Badge>
-                    </CarouselItem>
-                    {data.map((item) => (
-                        <CarouselItem key={item.value} className="pl-3 basis-auto">
-                            <Badge variant={value === item.value ? "default" : "secondary"} 
-                            className="cursor-pointer rounded-lg px-3 py-1 whitespace-nowrap text-sm"
-                            onClick={() => handleSelect(item.value)}>
-                                {item.label}
-                            </Badge>
-                        </CarouselItem>
-                    ))}
+      <Carousel
+        setApi={setApi}
+        opts={{
+          align: "start",
+          dragFree: true,
+        }}
+        className="w-full px-12"
+      >
+        <CarouselContent className="-ml-3">
+          {!isLoading && (
+            <CarouselItem
+              onClick={() => onSelect(null)}
+              className="pl-3 basis-auto"
+            >
+              <Badge
+                variant={!value ? "default" :"secondary"}
+                className="rounded-lg px-3 py-1 cursor-pointer whitespace-nowrap text-sm"
+              >
+                All
+              </Badge>
+            </CarouselItem>
+          )}
+          {isLoading && 
+            Array.from({ length: 14 }).map((_, index) => (
+              <CarouselItem key={index} className="pl-3 basis-auto">
+                <Skeleton className="rounded-lg px-3 py-1 h-full text-sm w-[100px] font-semibold">
+                  &nbsp;
+                </Skeleton>
+              </CarouselItem>
+            ))
+          }
+          {!isLoading && data.map((item) => (
+            <CarouselItem 
+              key={item.value} 
+              className="pl-3 basis-auto" 
+              onClick={() => onSelect(item.value)}
+            >
+              <Badge
+                variant={value === item.value ? "default" : "secondary"}
+                className="rounded-lg px-3 py-1 cursor-pointer whitespace-nowrap text-sm"
+              >
+                {item.label}
+              </Badge>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+        <CarouselPrevious className="left-0 z-20" />
+        <CarouselNext className="right-0 z-20" />
+      </Carousel>
 
-                </CarouselContent>
-                <CarouselPrevious className="left-0 z-20"/>
-                <CarouselNext className="right-0 z-20"/>
-            </Carousel>
-
-        </div>
-    )
+      {/* Right fade */}
+      <div
+        className={cn(
+          "absolute right-12 top-0 bottom-0 w-12 z-10 bg-gradient-to-l from-white to-transparent pointer-events-none",
+          current === count && "hidden"
+        )}
+      />
+    </div>
+  )
 }

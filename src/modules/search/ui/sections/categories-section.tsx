@@ -45,7 +45,6 @@ const CategoriesSectionSuspense = ({ categoryId }: CategoriesSectionProps) => {
 
   //   router.push(url.toString());
   // };
-
   const onSelect = (value: string | null) => {
     // 确定当前页面是首页还是搜索页
     const isSearchPage = window.location.pathname.includes("/search");
@@ -71,5 +70,6 @@ const CategoriesSectionSuspense = ({ categoryId }: CategoriesSectionProps) => {
     
     router.push(url.toString());
   };
+
   return <FilterCarousel onSelect={onSelect} value={categoryId} data={data} />
 };
