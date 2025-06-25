@@ -1,14 +1,12 @@
 import { ResponsiveModal } from "@/components/responsive-modal";
-import { Form,FormControl,FormItem,FormLabel,FormMessage,FormField } from "@/components/ui/form";
-import { UploadDropzone } from "@/lib/uploadthing";
+
 import { trpc } from "@/trpc/client";
-import { z } from "zod";
-import { Textarea } from "@/components/ui/textarea";
+
+
 import { toast } from "sonner";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+
 import { DEFAULT_LIMIT } from "@/constants";
 import { Loader2Icon, SquareCheckIcon, SquareIcon } from "lucide-react";
 import { InfiniteScroll } from "@/components/infinite-scroll";
@@ -19,9 +17,7 @@ interface PlaylistAddModalProps {
     videoId:string;
 }
 
-const formSchema = z.object({
-    name: z.string().min(1).max(100),
-});
+
 
 export const PlaylistAddModal = ({
     videoId,

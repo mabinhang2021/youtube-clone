@@ -6,7 +6,7 @@ import { commentInsertSchema } from "@/db/schema";
 import { trpc } from "@/trpc/client";
 import { useClerk, useUser } from "@clerk/nextjs";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { on } from "events";
+
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod";
@@ -37,11 +37,10 @@ export const CommentForm = ({videoId,parentId,onCancel,variant="comment",  onSuc
                 clerk.openSignIn()
         }
     });
-
-    const form = useForm<z.infer<typeof commentInsertSchema>>({
-        resolver: zodResolver(
-            commentInsertSchema.omit({ userId: true }) as any
-        ),
+    const commentFormSchema = commentInsertSchema.omit({ userId: true });
+    type CommentFormValues = z.infer<typeof commentFormSchema>;
+    const form = useForm<CommentFormValues>({
+        resolver: zodResolver(commentFormSchema),
         defaultValues: {
             parentId: parentId,
             videoId:videoId,
@@ -49,8 +48,8 @@ export const CommentForm = ({videoId,parentId,onCancel,variant="comment",  onSuc
         }
     })
 
-    const handleSubmit = (values:z.infer<typeof commentInsertSchema>) =>{
-        create.mutate(values)
+    const handleSubmit = (values: CommentFormValues) => {
+        create.mutate(values);
     }
 
     const handleCancel = () => {

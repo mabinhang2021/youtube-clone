@@ -1,6 +1,6 @@
 import { ResponsiveModal } from "@/components/responsive-modal";
 import { Form,FormControl,FormItem,FormLabel,FormMessage,FormField } from "@/components/ui/form";
-import { UploadDropzone } from "@/lib/uploadthing";
+
 import { trpc } from "@/trpc/client";
 import { z } from "zod";
 import { Textarea } from "@/components/ui/textarea";

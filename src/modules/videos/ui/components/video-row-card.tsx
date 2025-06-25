@@ -9,7 +9,7 @@ import { UserAvatar } from "@/components/user-avatar";
 import { VideoThumbnail, VideoThumbnailSkeleton } from "./video-thumbnail";
 import { VideoMenu } from "./video-menu";
 import { VideoGetManyOutput } from "../../types";
-import { Video } from "@mux/mux-node/resources/index.mjs";
+
 
 
 const videoRowCardVariants = cva("flex group min-w-0", {
@@ -90,14 +90,14 @@ const videoRowCardVariants = cva("flex group min-w-0", {
 
     return (
       <div className={videoRowCardVariants({ size })}>
-        <Link href={`/videos/${data.id}`} className={thumbnailVariants({ size })}>
+        <Link prefetch href={`/videos/${data.id}`} className={thumbnailVariants({ size })}>
           <VideoThumbnail imageUrl={data.thumbnailUrl} previewUrl={data.previewUrl} 
           title={data.title} duration={data.duration ?? 0}/>
         </Link>
 
         <div className="flex-1 min-w-0">
             <div className="flex gap-x-2 justify-between">
-                <Link href={`/videos/${data.id}`} className="flex-1 min-w-0">
+                <Link prefetch href={`/videos/${data.id}`} className="flex-1 min-w-0">
                     <h3 className={cn("font-medium line-clamp-2" ,size === "compact" ? "text-sm" : "text-base")}>
                         {data.title}
                     </h3>

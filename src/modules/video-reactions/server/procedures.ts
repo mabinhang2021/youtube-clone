@@ -28,7 +28,7 @@ export const videoReactionsRouter = createTRPCRouter({
                     )
                 ).returning();
 
-                return existingVideoReactionLike;
+                return deletedViewerReaction;
             }
             const [createdVideoReaction] = await db.insert(videoReactions)
             .values({
@@ -53,7 +53,7 @@ export const videoReactionsRouter = createTRPCRouter({
         .mutation(async ({ctx, input})=>{
             const { videoId } = input;
             const { id:userId} = ctx.user;
-            const [existingVideoReactionDosLike] = await db.select().from(videoReactions)
+            const [existingVideoReactionDisLike] = await db.select().from(videoReactions)
             .where(
                 and(
                     eq(videoReactions.videoId, videoId),
@@ -62,7 +62,7 @@ export const videoReactionsRouter = createTRPCRouter({
                 )
             )
             
-            if(existingVideoReactionDosLike){
+            if(existingVideoReactionDisLike){
                 const [deletedViewerReaction] = await db.delete(videoReactions)
                 .where(
                     and(
@@ -71,7 +71,7 @@ export const videoReactionsRouter = createTRPCRouter({
                     )
                 ).returning();
 
-                return existingVideoReactionDosLike;
+                return deletedViewerReaction;
             }
             const [createdVideoReaction] = await db.insert(videoReactions)
             .values({

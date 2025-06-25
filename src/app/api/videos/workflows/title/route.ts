@@ -58,7 +58,7 @@ export const { POST } = serve(
         },
       }
     );
-    const title = body.choices[0]?.message.content;
+
 
     await context.run("update-video",async () => {
       const title = body.choices[0]?.message.content;

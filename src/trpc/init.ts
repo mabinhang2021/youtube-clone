@@ -5,8 +5,7 @@ import { eq } from 'drizzle-orm';
 import { users } from '@/db/schema';
 import {auth} from '@clerk/nextjs/server';
 import {ratelimit} from '@/lib/ratelimit';
-import {Redis} from '@upstash/redis';
-import { Ratelimit} from '@upstash/ratelimit';
+
 import superjson from 'superjson';
 export const createTRPCContext = cache(async () => {
   const { userId } = await auth();

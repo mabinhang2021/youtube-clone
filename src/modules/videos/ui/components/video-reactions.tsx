@@ -1,14 +1,13 @@
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
-import { Video } from "@mux/mux-node/resources/index.mjs"
-import { Thumb } from "@radix-ui/react-scroll-area"
+
 import { ThumbsDownIcon, ThumbsUpIcon } from "lucide-react"
 import { VideoGetOneOutput } from "../../types"
 import { useClerk } from "@clerk/nextjs"
 import { trpc } from "@/trpc/client"
 import { toast } from "sonner"
-import { util } from "zod"
+
 //todo: replace with actual logic to determine viewer's 
 
 interface VideoReactionsProps {

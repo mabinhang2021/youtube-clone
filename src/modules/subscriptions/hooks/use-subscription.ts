@@ -1,6 +1,6 @@
 import { trpc } from "@/trpc/client";
 import { useClerk } from "@clerk/nextjs";
-import { error } from "console";
+
 import { toast } from "sonner";
 
 
@@ -19,7 +19,9 @@ export const useSubscription = ({ userId, isSubscribed, fromVideoId }: UseSubscr
             onSuccess: () => {
                 toast.success("Subscribed successfully");
                 //todo: reincalidate subscriptions.getmany , user,getone
+                utils.subscriptions.getMany.invalidate();
                 utils.videos.getManySubscribed.invalidate();
+                utils.users.getOne.invalidate({ id: userId });
                 if (fromVideoId) {
                     utils.videos.getOne.invalidate({ id: fromVideoId });
                 }
@@ -36,6 +38,9 @@ export const useSubscription = ({ userId, isSubscribed, fromVideoId }: UseSubscr
     const unsubscribe = trpc.subscriptions.remove.useMutation({
         onSuccess: () => {
             toast.success("Unsubscribed successfully");
+            utils.subscriptions.getMany.invalidate();
+            utils.videos.getManySubscribed.invalidate();
+            utils.users.getOne.invalidate({ id: userId });
             //todo: reincalidate subscriptions.getmany , user,getone
             if (fromVideoId) {
                 utils.videos.getOne.invalidate({ id: fromVideoId });

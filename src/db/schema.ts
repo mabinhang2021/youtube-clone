@@ -1,15 +1,15 @@
 import { integer, pgTable, uuid,text,timestamp,uniqueIndex, pgEnum, primaryKey, foreignKey } from "drizzle-orm/pg-core";
 import {relations} from "drizzle-orm";
 import {createInsertSchema,createSelectSchema,createUpdateSchema,} from "drizzle-zod";
-import { from } from "svix/dist/openapi/rxjsStub";
-import { view } from "drizzle-orm/sqlite-core";
-import { create } from "domain";
+
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   clerkId:text("clerk_id").unique().notNull(),
   name: text("name").notNull(),
 //   bannerUrl:todo add banner fields
+  bannerUrl: text("banner_url"),
+  bannerKey: text("banner_key"),
     imageUrl: text("image_url").notNull(),
     createdAt:timestamp("created_at").defaultNow().notNull(),
     updatedAt:timestamp("updated_at").defaultNow().notNull(),
@@ -264,7 +264,7 @@ export const playlistVideos = pgTable("playlist_videos", {
 ])
 
 
-export const playlistVideoRelations = relations(playlistVideos, ({one,many}) => ({
+export const playlistVideoRelations = relations(playlistVideos, ({one,}) => ({
   playlist: one(playlists, {
     fields: [playlistVideos.playlistId],
     references: [playlists.id],

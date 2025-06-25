@@ -1,11 +1,11 @@
 import {db} from "@/db";
-import {mux} from "@/lib/mux";
-import { subscriptions, users, videos,videoUpdateSchema, videoReactions, playlistVideos, playlists, videoViews } from "@/db/schema";
-import { baseProcedure, createTRPCRouter, protectedProcedure,} from "@/trpc/init";
-import { and,desc,eq, getTableColumns, inArray, isNotNull, lt, or, sql } from "drizzle-orm";
+
+import {  users, videos, videoReactions, playlistVideos, playlists, videoViews } from "@/db/schema";
+import {  createTRPCRouter, protectedProcedure,} from "@/trpc/init";
+import { and,desc,eq, getTableColumns, lt, or, sql } from "drizzle-orm";
 
 import { z } from "zod";
-import { create } from "domain";
+
 
 
 

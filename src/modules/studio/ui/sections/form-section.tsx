@@ -3,8 +3,8 @@ import {trpc} from "@/trpc/client";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Suspense, use, useState } from "react";
-import {ControllerFieldState, ControllerRenderProps, FieldValues, useForm, UseFormStateReturn} from "react-hook-form";
+import { Suspense,  useState } from "react";
+import { useForm, } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "@/components/ui/textarea";
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -18,12 +18,12 @@ import { z } from "zod";
 import { videoUpdateSchema } from "@/db/schema";
 import { Input } from "@/components/ui/input";
 import { VideoPlayer } from "@/modules/videos/ui/components/video-player";
-import { set } from "date-fns";
+
 import { snakeCaseToTitle } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { THUMBNAIL_FALLBACK } from "@/modules/videos/constants";
 import { ThumbnailUploadModal } from "../components/thumbnail-upload-modal";
-import { Description } from "@radix-ui/react-dialog";
+
 import { ThumbnailGenerateModal } from "../components/thumbnail-generate-modal";
 import { Skeleton } from "@/components/ui/skeleton";
 import { APP_URL } from "@/constants";
@@ -376,7 +376,7 @@ export const FormSectionSkeleton = () => {
                                 <div className="flex flex-col gap-y-1">
                                     <p className="text-xs text-muted-foreground">Video Link</p>
                                     <div className="flex items-center gap-x-2">
-                                        <Link href={`/videos/${video.id}`}>
+                                        <Link prefetch href={`/videos/${video.id}`}>
                                             <p className="text-sm line-clamp-1 text-blue-600 ">
                                                 {fullUrl}
                                             </p>

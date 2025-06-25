@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { format } from 'path';
+
 import { formatDuration } from '@/lib/utils';
 import { THUMBNAIL_FALLBACK } from '../../constants';
 import { Skeleton } from '@/components/ui/skeleton';
