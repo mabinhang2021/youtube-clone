@@ -29,7 +29,8 @@ export const VideoReactions = ({videoId, likes, dislikes, viewerReaction}: Video
         onSuccess:()=>{
             utils.videos.getOne.invalidate({ id: videoId });
             toast.success("Video liked successfully")
-            //todo: invadidate the video reactions cache
+            utils.playlists.getLiked.invalidate();
+            
         },
         onError: (error) => {
             toast.error("Error liking video")
@@ -42,7 +43,8 @@ export const VideoReactions = ({videoId, likes, dislikes, viewerReaction}: Video
         onSuccess:()=>{
             utils.videos.getOne.invalidate({ id: videoId });
             toast.success("Video disliked successfully")
-            //todo: invadidate the video reactions cache
+            utils.playlists.getLiked.invalidate();
+           
         },
         onError: (error) => {
             toast.error("Error liking video")
