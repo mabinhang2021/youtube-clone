@@ -1,6 +1,7 @@
 # YouTube Clone
 
 一个使用现代技术栈构建的功能完整的YouTube克隆项目。
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/mabinhang2021/youtube-clone)
 
 ## 🌐 在线演示
 
